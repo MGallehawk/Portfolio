@@ -1,0 +1,21 @@
+consult bruce and abormal re future simulations
+montyhly occurences of usb use
+review with bruce re usb monitoring tools
+find acceptable use policy re removable media
+
+=review factory for ports
+
+
+toolbox talks
+
+presentation for management
+
+what it is
+what the threat is
+how we currently mange it
+
+simulation
+lolly jar with USB keys trap at 1007 1084 990
+- ict approved
+-
+ 
