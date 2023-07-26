@@ -1,0 +1,11 @@
+- Used to get serial number from a machine when you have only an ip or host name.
+- limitations device must be on domain and on
+- also windows is fasing out wmic... good while it lasts
+- requires powershell as administrator
+- run wmic than the next line... something about /node wont work in one line like wmic /node... not sure y 
+
+wmic
+(enter)
+ 
+/node:"GJLT-1601" bios get serialnumber
+(enter and wait paitiently)

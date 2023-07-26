@@ -1,0 +1,16 @@
+﻿"/node:""10.59.5.102"" product where name=""Configuration Manager Client"" call uninstall", ReturnValue = 3010;
+"/node:""10.35.5.189"" product where name=""Configuration Manager Client"" call uninstall",10.35.5.189 - Invalid node (discarded).
+"/node:""10.54.4.54"" product where name=""Configuration Manager Client"" call uninstall",10.54.4.54 - Invalid node (discarded).
+"/node:""10.54.4.54"" product where name=""Configuration Manager Client"" call uninstall",10.54.4.54 - Invalid node (discarded).
+"/node:""10.54.4.54"" product where name=""Configuration Manager Client"" call uninstall",10.54.4.54 - Invalid node (discarded).
+"/node:""10.54.4.89"" product where name=""Configuration Manager Client"" call uninstall",ReturnValue = 3010;
+"/node:""10.54.4.89"" product where name=""Configuration Manager Client"" call uninstall",Description = Not found
+"/node:""10.55.5.130"" product where name=""Configuration Manager Client"" call uninstall",10.55.5.130 - Invalid node (discarded).
+"/node:""10.55.5.225"" product where name=""Configuration Manager Client"" call uninstall", ReturnValue = 3010;
+"/node:""10.64.4.73"" product where name=""Configuration Manager Client"" call uninstall", ReturnValue = 3010;
+"/node:""10.54.5.175"" product where name=""Configuration Manager Client"" call uninstall", ReturnValue = 3010;
+"/node:""10.64.5.140"" product where name=""Configuration Manager Client"" call uninstall",ReturnValue = 3010;
+"/node:""10.30.5.103"" product where name=""Configuration Manager Client"" call uninstall",10.30.5.103 - Invalid node (discarded).
+"/node:""10.64.5.28"" product where name=""Configuration Manager Client"" call uninstall",ReturnValue = 3010;
+"/node:""10.31.5.104"" product where name=""Configuration Manager Client"" call uninstall",10.31.5.104 - Invalid node (discarded).
+"/node:""10.64.5.25"" product where name=""Configuration Manager Client"" call uninstall",10.64.5.25 - Invalid node (discarded).

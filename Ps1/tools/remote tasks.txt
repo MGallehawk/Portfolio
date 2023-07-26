@@ -1,0 +1,12 @@
+-shut down a network pc remotely 
+-shutdown /m \\gjws-1052 /s /f
+-shutdown /m \\gjws-1052 /r /f
+
+- see live processor on a network machine
+tasklist /s machinename
+
+- kill applications on a remote 
+taskkill /s gjws-0838 /F /IM Teams.exe
+
+- access another device on the domains c drive
+\\MyLaptop\c$

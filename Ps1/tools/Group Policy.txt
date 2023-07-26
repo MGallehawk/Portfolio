@@ -1,0 +1,21 @@
+- gpresult shows what group policies have been applied client side, this can be usefull to contrast against the domain controller.
+- group policies are issued to users and computers.
+
+-Display All Applied GPOs applied to  (User and Computer)
+gpresult /r
+
+-Display All Applied GPOs applied to user
+gpresult /r /scope:user
+
+-Display GPOs applied to a specific computer
+gpresult /r /scope:computer
+
+-switch exports results to a file
+gpresult /h c:\reports.html
+gpresult /r >c:\results.txt
+
+-updates group policy with DC
+gpupdate /force
+
+
+
