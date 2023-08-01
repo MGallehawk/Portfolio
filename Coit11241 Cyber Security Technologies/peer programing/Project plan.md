@@ -26,7 +26,7 @@ Chelsea: Step 8
 
 
 ****
-1st Meeting in regards to assessment (01/08/23 7pm- pm):
+1st Meeting in regards to assessment (01/08/23 7pm- 8:15pm):
 - Discussing tasks
 - Setting up the basic building blocks of the tasks
 - Distributing tasks among members
