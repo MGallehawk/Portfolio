@@ -9,10 +9,18 @@ scope:
 -log if it is up
 #>
 
+#testWdac function takes in two parameters
+function testWDAC {
+    param (
+        [Parameter(Mandatory = $true, Position=0)] $testAppPath, 
+        [Parameter(Mandatory = $true, Position=1)] $App
+    )
+    
+    
 #function opens the specified exe by file path
 function startBadApp {
     #variable to be passed in is manditory
-    param ([Parameter(Mandatory = $true)] [String]$appPath
+    param ([Parameter(Mandatory = $true)] $appPath
         
     )
     try {
@@ -20,8 +28,9 @@ function startBadApp {
         start-process $appPath;
     }
     catch {
+
         #outpts to cmdline if exe can not be loaded
-        Write-Output "File can not be loaded. File path is incorrect or app has been blocked"
+        Write-Output "File" +$appPath+ "can not be loaded. File path is incorrect or app has been blocked"
     }
     
 }
@@ -93,13 +102,23 @@ function test4App {
         $LogObject | Export-Csv -Path $LogFile -Append -NoTypeInformation -Force;
     }
 }
-
-#path to app
-$testAppPath = "C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
-#approximate name or description of app
-$app = "acrobat"
+<#Sanity check#>
+<#
+$testAppPath
+$App 
+#>
 
 #starts the app
-startBadApp -appPath $testAppPath 
+startBadApp -appPath $testAppPath
 #tests the is preasent
-test4App -app $app;
+test4App -app $App; 
+}
+
+
+#path to app
+[string]$testAppPath = "C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe";
+#approximate name or description of app
+[string]$App = "acrobat";
+
+#initiates the test function
+testWDAC -testAppPath $testAppPath -App $App;
