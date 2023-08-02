@@ -15,7 +15,7 @@ get-process | Where-Object -Property Name -like $badApp | Select-Object -Propert
 #gets local time used for logging
 $time = Get-Date;
 #Feild indicates the file that the script runs from
-$LogFile = $PSScriptRoot +"\testWDCLog.csv";
+$LogFile = $PSScriptRoot + "\testWDCLog.csv";
 
 #define target process here
 $badApp = 'Discord'
@@ -34,12 +34,17 @@ $LogObject | Add-Member -MemberType NoteProperty -Name 'App CPU Usage' -Value ''
 $LogObject | Add-Member -MemberType NoteProperty -Name 'App CPU Up time' -Value '';
 $LogObject | Add-Member -MemberType NoteProperty -Name 'App Max working set size'-Value '';
 
-#creates an object containing the variable 
-$ob = get-process | Where-Object {($_.Name -like $badApp) -or ($_.Description -like $badApp)};
+#creates an aray of processors object containing that meet the conditions 
+$ob = get-process | Where-Object { ($_.Name -like $badApp) -or ($_.Description -like $badApp) };
 
-    if($null -ne $ob) {
-        $count= 0;
-        $ob | ForEach-Object{
+# if the get-process finds things do this
+if ($null -ne $ob) {
+
+    #initilises a counter
+    $count = 0;
+    #for loop passing each process that matched teh condition
+    $ob | ForEach-Object {
+        #adds values to the object    
         $LogObject.'Application file Name' = $ob.name[$count];
         $LogObject.'Application Name' = $ob.Description[$count];
         $LogObject.'App Running?' = 'True';
@@ -48,21 +53,24 @@ $ob = get-process | Where-Object {($_.Name -like $badApp) -or ($_.Description -l
         $LogObject.'App CPU Usage' = $ob.CPU[$count];
         $LogObject.'App CPU Up time' = $ob.TotalProcessorTime[$count];
         $LogObject.'App Max working set size' = $ob.MaxWorkingSet[$count];
+        #itterates the loop
         $count ++;
-        $LogObject |Export-Csv -Path $LogFile -Append -NoTypeInformation -Force;
-        }
+        #outputs current processor to csv
+        $LogObject | Export-Csv -Path $LogFile -Append -NoTypeInformation -Force;
     }
-    else {
-        $LogObject.'App Running?' = 'False';
-        $LogObject.'Application ID' = "N/A";
-        $LogObject.'App File Location' = "N/A";
-        $LogObject.'App CPU Usage' = 0;
-        $LogObject.'App CPU Up time' = 0;
-        $LogObject.'App Max working set size' = 0;
-        #exports log object to csv
-        #$LogObject | Select-Object * | Export-Csv -Path $LogFile -Append -NoTypeInformation;
-        $LogObject |Export-Csv -Path $LogFile -Append -NoTypeInformation -Force;
-    }
+}
+#else condition if the get-process found nothing
+else {
+    #updates object variables
+    $LogObject.'App Running?' = 'False';
+    $LogObject.'Application ID' = "N/A";
+    $LogObject.'App File Location' = "N/A";
+    $LogObject.'App CPU Usage' = 0;
+    $LogObject.'App CPU Up time' = 0;
+    $LogObject.'App Max working set size' = 0;
+    #exports log object to csv
+    $LogObject | Export-Csv -Path $LogFile -Append -NoTypeInformation -Force;
+}
 
 
 
