@@ -15,7 +15,7 @@ Scope:
 -resetWdac() removes block policy
 #>
 
-param([parameter(Mandatory = $false,Position=0)]$command,$policyPath,$testAppPath,$App)
+param([parameter(Mandatory = $false,Position=0)]$command, $policyPath, $testAppPath, $App)
 
 function showUsage() {
     Write-Host "Usage: defend.ps1 <command>"
@@ -140,13 +140,73 @@ startBadApp -appPath $testAppPath
 test4App -app $App; 
 }
 
+function createWDACPolicy(){
+     param (
+        [string]$DenyAppPath   # The path to the binary to block (optional)
+    )
+
+    try{
+
+        $PolicyName= "DenyAllPolicy"
+        $WDACPolicy=$PSScriptRoot+"\$PolicyName.xml"
+        $allowMicrosoft = $env:windir+"\schemas\CodeIntegrity\ExamplePolicies\AllowMicrosoft.xml"
+
+        Copy-Item  $allowMicrosoft $WDACPolicy
+
+        Set-CIPolicyIdInfo -FilePath $WDACPolicy -PolicyName $PolicyName -ResetPolicyID
+        Set-CIPolicyVersion -FilePath $WDACPolicy -Version "1.0.0.0"
+
+
+        Set-RuleOption -FilePath $WDACPolicy -Option 0 # Enabled UMCI
+        Set-RuleOption -FilePath $WDACPolicy -Option 1 # Enable Boot Menu Protection
+        Set-RuleOption -FilePath $WDACPolicy -Option 3 # Enable Audit Mode
+        Set-RuleOption -FilePath $WDACPolicy -Option 4 # Disable Flight Signing
+        Set-RuleOption -FilePath $WDACPolicy -Option 6 # Enable Unsigned Policy
+        Set-RuleOption -FilePath $WDACPolicy -Option 10 # Enable Boot Audit on Failure
+        Set-RuleOption -FilePath $WDACPolicy -Option 12 # Enable Enforce Store Apps
+        Set-RuleOption -FilePath $WDACPolicy -Option 16 # Enable No Reboot
+        Set-RuleOption -FilePath $WDACPolicy -Option 17 # Enable Allow Supplemental
+        Set-RuleOption -FilePath $WDACPolicy -Option 19 # Enable Dynamic Code Security
+
+        $PathRules = @()
+        $PathRules += New-CIPolicyRule -FilePathRule "%windir%\*"
+        $PathRules += New-CIPolicyRule -FilePathRule "%OSDrive%\Program Files\*"
+        $PathRules += New-CIPolicyRule -FilePathRule "%OSDrive%\Program Files (x86)\*"
+
+ 
+
+        if ($DenyAppPath) {
+            # Add blocking rules for specified binary if provided
+            $DenyRules = @()
+            forEach($Path in $BinaryPath){
+                $DenyRules += New-CIPolicyRule -Level FileName -DriverFilePath $Path -Fallback SignedVersion,Publisher,Hash -Deny
+            }
+            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules + $DenyRules
+        } else {
+            # Merge the path rules only if no binary is specified
+            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules >> CIPolicyLog.txt
+        }
+    }
+    catch{
+        Write-Host "Failed to create WDAC Policy: $_"
+        
+    }
+   
+
+    #create supplemental policy
+    # Set-CIPolicyIdInfo -FilePath ".\supplemental_policy.xml" [-SupplementsBasePolicyID <BasePolicyGUID>] [-BasePolicyToSupplementPath <basepolicy_path_>] -PolicyId <policy_Id> -PolicyName <PolicyName>
+}
+
 
 
 #converts policy to .cip
 function setupWDAC() {
     param([parameter(Mandatory = $false,Position=0)]$policyPath)
+    #check for available xml files
+    $xmlFiles = Get-ChildItem -Path .\*.xml
+
     # $policyPath = Read-Host "Enter Policy Path"
-    if((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml]) ){
+    if((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml]) -or $xmlFiles.Length -gt 0 ){
         #get policy ID
         [xml]$xml = Get-Content $policyPath
         $policyID = $xml.Sipolicy.PolicyTypeID
@@ -160,6 +220,7 @@ function setupWDAC() {
     else{
         if(-not (isNotEmpty $policyPath)){
             write-host "[-] No Path Provided!"
+            showUsage
         }else{
             write-host "[-] Invalid Path!"
         }
@@ -177,7 +238,7 @@ function enableWDAC([String]$policyPath=".\disabledPolicies.txt") {
     #check available cip files
     $cipFiles = Get-ChildItem -Path .\*.cip
     #enable policy using citoo.exe
-    if((Test-Path $policyPath) -and $($(Get-Content .\disabledPolicies.txt).Length) -gt 0){
+    if((Test-Path $policyPath) -and ($($(Get-Content .\disabledPolicies.txt).Length) -gt 0) -or $cipFiles.Length -gt 0){
         $policyIDs = Get-Content .\disabledPolicies.txt
         
         foreach($policyID in $policyIDs){
