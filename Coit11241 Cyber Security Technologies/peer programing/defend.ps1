@@ -21,7 +21,7 @@ function showUsage() {
     Write-Host "Usage: defend.ps1 <command>"
     Write-Host "Commands:"
     Write-Host "  testWDAC -testAppPath <path> -App <app name>"
-    Write-Host "  setupWDAC -policyPath <path>"
+    Write-Host "  setupWDAC -policyPath <path> | *leave blank to create a new policy*"
     Write-Host "  enableWDAC"
     Write-Host "  resetWDAC"
 }
@@ -212,13 +212,17 @@ function createWDACPolicy(){
 function setupWDAC() {
     param([parameter(Mandatory = $false,Position=0)]$policyPath, [Parameter(Position=1)][string]$DenyAppPath,[Parameter(Position=2)]$AllowAppPath)
 
-    createWDACPolicy $DenyAppPath $AllowAppPath
+    $xmlFiles = ""
+    if(-not ($policyPath)){
+        createWDACPolicy $DenyAppPath $AllowAppPath
+        #check for available xml files
+        $xmlFiles = Get-ChildItem -Path ".\*.xml"
+    }
 
-    #check for available xml files
-    $xmlFiles = Get-ChildItem -Path ".\*.xml"
+    
 
     # $policyPath = Read-Host "Enter Policy Path"
-    if(((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml])) -or (($xmlFiles|Measure-Object).Count -eq 1) ){
+    if(((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml])) -or ((($xmlFiles|Measure-Object).Count -eq 1) -and (-not $policyPath)) ){
         [xml]$xml = ''
         if($policyPath){
             $xml = Get-Content $policyPath
@@ -238,7 +242,7 @@ function setupWDAC() {
     else{
         if( (isEmpty $policyPath)){
             write-host "[-] No Path Provided!"
-            showUsage
+            
         }else{
             write-host "[-] Invalid Path!"
         }
@@ -246,7 +250,8 @@ function setupWDAC() {
     
 }
 
-function enableWDAC([String]$policyPath=".\disabledPolicies.txt") {
+function enableWDAC() {
+    
     #Might need to run as admin
     # if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { 
     #     Write-Warning "You do not have Administrator rights to run this script!`nPlease re-run this script as an Administrator!"
@@ -254,22 +259,36 @@ function enableWDAC([String]$policyPath=".\disabledPolicies.txt") {
     # }
 
     #check available cip files
-    $cipFiles = Get-ChildItem -Path .\*.cip
+    $cipFiles = Get-ChildItem -Path ".\*.cip"
     #enable policy using citoo.exe
-    if((Test-Path $policyPath) -and ($($(Get-Content .\disabledPolicies.txt).Length) -gt 0) -or $cipFiles.Length -gt 0){
-        $policyIDs = Get-Content .\disabledPolicies.txt
+    if( ($cipFiles|Measure-Object).Count -gt 1){
+
         
-        foreach($policyID in $policyIDs){
+
+        forEach($policyID in ($($cipFiles.name) -replace ".cip", "")){
+            
+            $folderPath = "$PSScriptRoot\ActivePolicies"
+            $fileName = "$policyID.cip"
+            $fullPath = Join-Path -Path $folderPath -ChildPath $fileName
+
+            # Check if the folder exists. If not, create it.
+            if (-Not (Test-Path $folderPath -PathType Container)) {
+                New-Item -ItemType Directory -Path $folderPath -Force | Out-Null
+            }
             # .\ciptool.exe --update-policy "$policyID.cip" #Deploy policy
             echo "[+] Policy $policyID Enabled"
+
+       
+
+            # Move the file inside the folder.
+            Move-Item -Path "$PSScriptRoot\$fileName" -Destination $fullPath -Force | Out-Null
         }
-        #save enabled policies
-        echo "$policyIDs">> enabledPolicies.txt        
-        #remove disabledPolicies.txt
-        Remove-Item -Path $policyPath
+
     }
     else{
-        write-host "[-] No Policy to enable"
+        write-host "[-] No Policy Found! "
+        write-host "[~] Create Policy: .\defend.ps1 setupWDAC"
+
     }
 }
 
