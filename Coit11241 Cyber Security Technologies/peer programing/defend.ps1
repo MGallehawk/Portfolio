@@ -15,7 +15,7 @@ Scope:
 -resetWdac() removes block policy
 #>
 
-param([parameter(Mandatory = $false,Position=0)]$command, $policyPath, $testAppPath, $App, [string]$DenyAppPath, [string]$AllowAppPath)
+param([parameter(Mandatory = $false, Position = 0)]$command, $policyPath, $testAppPath, $App, $DenyAppPath)
 
 function showUsage() {
     Write-Host "Usage: defend.ps1 <command>"
@@ -26,11 +26,11 @@ function showUsage() {
     Write-Host "  resetWDAC"
 }
 
-function isNotEmpty([String]$value){
+function isNotEmpty([String]$value) {
     return -not [string]::IsNullOrWhiteSpace($value)
 }
 
-function isEmpty([String]$value){
+function isEmpty([String]$value) {
     return [string]::IsNullOrWhiteSpace($value)
 }
 
@@ -38,119 +38,118 @@ function isEmpty([String]$value){
 #testWdac function takes in two parameters
 function testWDAC {
     param (
-        [Parameter(Mandatory = $true, Position=0)] $testAppPath, 
-        [Parameter(Mandatory = $true, Position=1)] $App
+        [Parameter(Mandatory = $true, Position = 0)] $testAppPath, 
+        [Parameter(Mandatory = $true, Position = 1)] $App
     )
     
     
-#function opens the specified exe by file path
-function startBadApp {
-    #variable to be passed in is manditory
-    param ([Parameter(Mandatory = $true)] $appPath
-        
-    )
-    try {
-        #opens the app based on the path passed in
-        start-process $appPath;
-    }
-    catch {
-
-        #outpts to cmdline if exe can not be loaded
-        Write-Output "File" +$appPath+ "can not be loaded. File path is incorrect or app has been blocked"
-    }
-    
-}
-
-#function logs all instances of running processors that match the specifies app
-function test4App {
-    param (
+    #function opens the specified exe by file path
+    function startBadApp {
         #variable to be passed in is manditory
-        [Parameter(Mandatory = $true)] [String]$app
-    )
+        param ([Parameter(Mandatory = $true)] $appPath
+        
+        )
+        try {
+            #opens the app based on the path passed in
+            start-process $appPath;
+        }
+        catch {
 
-    #gets local time used for logging
-    $time = Get-Date;
-    #Feild indicates the file that the script runs from
-    $LogFile = $PSScriptRoot + "\testWDCLog.csv";
+            #outpts to cmdline if exe can not be loaded
+            Write-Output "File" +$appPath+ "can not be loaded. File path is incorrect or app has been blocked"
+        }
+    
+    }
 
-    #define target process here
-    $badApp = $app
+    #function logs all instances of running processors that match the specifies app
+    function test4App {
+        param (
+            #variable to be passed in is manditory
+            [Parameter(Mandatory = $true)] [String]$app
+        )
 
-    #log object to report on results
-    $LogObject = New-Object -TypeName psobject;
+        #gets local time used for logging
+        $time = Get-Date;
+        #Feild indicates the file that the script runs from
+        $LogFile = $PSScriptRoot + "\testWDCLog.csv";
 
-    #assigning variables to log object
-    $LogObject | Add-Member -MemberType NoteProperty -Name 'Date Time' -Value $time;
-    $LogObject | Add-Member -MemberType NoteProperty -Name 'Application file Name' -Value $badApp;
-    $LogObject | Add-Member -MemberType NoteProperty -Name 'Application Name' -Value $badApp;
-    $LogObject | Add-Member -MemberType NoteProperty -Name 'App Running?' -Value '';
-    $LogObject | Add-Member -MemberType NoteProperty -Name 'Application ID' -Value '';
-    $LogObject | Add-Member -MemberType NoteProperty -Name 'App File Location' -Value '';
-    $LogObject | Add-Member -MemberType NoteProperty -Name 'App CPU Usage' -Value ''; 
-    $LogObject | Add-Member -MemberType NoteProperty -Name 'App CPU Up time' -Value '';
-    $LogObject | Add-Member -MemberType NoteProperty -Name 'App Max working set size'-Value '';
+        #define target process here
+        $badApp = $app
 
-    #creates an aray of processors object containing that meet the conditions 
-    $ob = get-process | Where-Object { ($_.Name -like $badApp) -or ($_.Description -like $badApp) };
+        #log object to report on results
+        $LogObject = New-Object -TypeName psobject;
 
-    # if the get-process finds things do this
-    if ($null -ne $ob) {
+        #assigning variables to log object
+        $LogObject | Add-Member -MemberType NoteProperty -Name 'Date Time' -Value $time;
+        $LogObject | Add-Member -MemberType NoteProperty -Name 'Application file Name' -Value $badApp;
+        $LogObject | Add-Member -MemberType NoteProperty -Name 'Application Name' -Value $badApp;
+        $LogObject | Add-Member -MemberType NoteProperty -Name 'App Running?' -Value '';
+        $LogObject | Add-Member -MemberType NoteProperty -Name 'Application ID' -Value '';
+        $LogObject | Add-Member -MemberType NoteProperty -Name 'App File Location' -Value '';
+        $LogObject | Add-Member -MemberType NoteProperty -Name 'App CPU Usage' -Value ''; 
+        $LogObject | Add-Member -MemberType NoteProperty -Name 'App CPU Up time' -Value '';
+        $LogObject | Add-Member -MemberType NoteProperty -Name 'App Max working set size'-Value '';
 
-        #initilises a counter
-        $count = 0;
-        #for loop passing each process that matched teh condition
-        $ob | ForEach-Object {
-            #adds values to the object    
-            $LogObject.'Application file Name' = $ob.name[$count];
-            $LogObject.'Application Name' = $ob.Description[$count];
-            $LogObject.'App Running?' = 'True';
-            $LogObject.'Application ID' = $ob.Id[$count];
-            $LogObject.'App File Location' = $ob.Path[$count];
-            $LogObject.'App CPU Usage' = $ob.CPU[$count];
-            $LogObject.'App CPU Up time' = $ob.TotalProcessorTime[$count];
-            $LogObject.'App Max working set size' = $ob.MaxWorkingSet[$count];
-            #itterates the loop
-            $count ++;
-            #outputs current processor to csv
+        #creates an aray of processors object containing that meet the conditions 
+        $ob = get-process | Where-Object { ($_.Name -like $badApp) -or ($_.Description -like $badApp) };
+
+        # if the get-process finds things do this
+        if ($null -ne $ob) {
+
+            #initilises a counter
+            $count = 0;
+            #for loop passing each process that matched teh condition
+            $ob | ForEach-Object {
+                #adds values to the object    
+                $LogObject.'Application file Name' = $ob.name[$count];
+                $LogObject.'Application Name' = $ob.Description[$count];
+                $LogObject.'App Running?' = 'True';
+                $LogObject.'Application ID' = $ob.Id[$count];
+                $LogObject.'App File Location' = $ob.Path[$count];
+                $LogObject.'App CPU Usage' = $ob.CPU[$count];
+                $LogObject.'App CPU Up time' = $ob.TotalProcessorTime[$count];
+                $LogObject.'App Max working set size' = $ob.MaxWorkingSet[$count];
+                #itterates the loop
+                $count ++;
+                #outputs current processor to csv
+                $LogObject | Export-Csv -Path $LogFile -Append -NoTypeInformation -Force;
+            }
+        }
+        #else condition if the get-process found nothing
+        else {
+            #updates object variables
+            $LogObject.'App Running?' = 'False';
+            $LogObject.'Application ID' = "N/A";
+            $LogObject.'App File Location' = "N/A";
+            $LogObject.'App CPU Usage' = 0;
+            $LogObject.'App CPU Up time' = 0;
+            $LogObject.'App Max working set size' = 0;
+            #exports log object to csv
             $LogObject | Export-Csv -Path $LogFile -Append -NoTypeInformation -Force;
         }
     }
-    #else condition if the get-process found nothing
-    else {
-        #updates object variables
-        $LogObject.'App Running?' = 'False';
-        $LogObject.'Application ID' = "N/A";
-        $LogObject.'App File Location' = "N/A";
-        $LogObject.'App CPU Usage' = 0;
-        $LogObject.'App CPU Up time' = 0;
-        $LogObject.'App Max working set size' = 0;
-        #exports log object to csv
-        $LogObject | Export-Csv -Path $LogFile -Append -NoTypeInformation -Force;
-    }
-}
-<#Sanity check#>
-<#
+    <#Sanity check#>
+    <#
 $testAppPath
 $App 
 #>
 
-#starts the app
-startBadApp -appPath $testAppPath
-#tests the is preasent
-test4App -app $App; 
+    #starts the app
+    startBadApp -appPath $testAppPath
+    #tests the is preasent
+    test4App -app $App; 
 }
 
-function createWDACPolicy(){
-     param (
-        [Parameter(Position=0)][string]$DenyAppPath,   # The path to the binary to block (optional)
-        [Parameter(Position=1)][string]$AllowAppPath
+function createWDACPolicy() {
+    param (
+        [Parameter(Mandatory = $false, Position = 0)][string]$DenyAppPath   # The path to the binary to block (optional)
     )
 
-    try{
+    try {
 
-        $PolicyName= "DenyAllPolicy"
-        $WDACPolicy=$PSScriptRoot+"\$PolicyName.xml"
-        $allowMicrosoft = $env:windir+"\schemas\CodeIntegrity\ExamplePolicies\AllowMicrosoft.xml"
+        $PolicyName = "DenyAllPolicy"
+        $WDACPolicy = $PSScriptRoot + "\$PolicyName.xml"
+        $allowMicrosoft = $env:windir + "\schemas\CodeIntegrity\ExamplePolicies\AllowMicrosoft.xml"
 
         Copy-Item  $allowMicrosoft $WDACPolicy
 
@@ -179,50 +178,41 @@ function createWDACPolicy(){
         if ($DenyAppPath) {
             # Add blocking rules for specified binary if provided
             $DenyRules = @()
-            forEach($Path in $DenyAppPath){
-                $DenyRules += New-CIPolicyRule -Level FileName -DriverFilePath $Path -Fallback SignedVersion,Publisher,Hash -Deny
+            forEach ($Path in $BinaryPath) {
+                $DenyRules += New-CIPolicyRule -Level FileName -DriverFilePath $Path -Fallback SignedVersion, Publisher, Hash -Deny
             }
-            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $($PathRules+$DenyRules)  >> CIPolicyLog.txt
-        
+            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules + $DenyRules
         }
-        elseif($AllowAppPath){
-            forEach($Path in $AllowAppPath){
-                $PathRules += New-CIPolicyRule -Level FileName -DriverFilePath $Path -Fallback SignedVersion,Publisher,Hash
-            }
-            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules  >> CIPolicyLog.txt
-        } 
         else {
             # Merge the path rules only if no binary is specified
             Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules >> CIPolicyLog.txt
         }
     }
-    catch{
+    catch {
         Write-Host "Failed to create WDAC Policy: $_"
         
     }
-   
 
     #create supplemental policy
     # Set-CIPolicyIdInfo -FilePath ".\supplemental_policy.xml" [-SupplementsBasePolicyID <BasePolicyGUID>] [-BasePolicyToSupplementPath <basepolicy_path_>] -PolicyId <policy_Id> -PolicyName <PolicyName>
 }
 
-
-
 #creates and converts policy to .cip
 function setupWDAC() {
-    param([parameter(Mandatory = $false,Position=0)]$policyPath, [Parameter(Position=1)][string]$DenyAppPath,[Parameter(Position=2)]$AllowAppPath)
+    param([parameter(Mandatory = $false, Position = 0)]$policyPath, [Parameter(Position = 1)]$DenyAppPath)
 
-    createWDACPolicy $DenyAppPath $AllowAppPath
+    createWDACPolicy $DenyAppPath
 
     #check for available xml files
     $xmlFiles = Get-ChildItem -Path ".\*.xml"
 
     # $policyPath = Read-Host "Enter Policy Path"
-    if(((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml])) -or (($xmlFiles|Measure-Object).Count -eq 1) ){
+    if (((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml])) -or (($xmlFiles | Measure-Object).Count -eq 1) ) {
         [xml]$xml = ''
-        if($policyPath){
+        if ($policyPath) {
             $xml = Get-Content $policyPath
-        }else{
+        }
+        else {
             $xml = Get-Content $xmlFiles
             $policyPath = "$PSScriptRoot\$($xmlFiles.Name)"
         }
@@ -232,21 +222,22 @@ function setupWDAC() {
         #convert policy to .cip
         ConvertFrom-CIPolicy -XmlFilePath $policyPath -BinaryFilePath "$policyID.cip"
 
-        echo "[+] Policy $policyID Created!"
-        echo "[~] Deployed Policy: .\defend.ps1 enableWDAC"
+        Write-Output "[+] Policy $policyID Created!"
+        Write-Output "[~] Deployed Policy: .\defend.ps1 enableWDAC"
     }
-    else{
-        if( (isEmpty $policyPath)){
+    else {
+        if ( (isEmpty $policyPath)) {
             write-host "[-] No Path Provided!"
             showUsage
-        }else{
+        }
+        else {
             write-host "[-] Invalid Path!"
         }
     }
     
 }
 
-function enableWDAC([String]$policyPath=".\disabledPolicies.txt") {
+function enableWDAC([String]$policyPath = ".\disabledPolicies.txt") {
     #Might need to run as admin
     # if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { 
     #     Write-Warning "You do not have Administrator rights to run this script!`nPlease re-run this script as an Administrator!"
@@ -256,19 +247,19 @@ function enableWDAC([String]$policyPath=".\disabledPolicies.txt") {
     #check available cip files
     $cipFiles = Get-ChildItem -Path .\*.cip
     #enable policy using citoo.exe
-    if((Test-Path $policyPath) -and ($($(Get-Content .\disabledPolicies.txt).Length) -gt 0) -or $cipFiles.Length -gt 0){
+    if ((Test-Path $policyPath) -and ($($(Get-Content .\disabledPolicies.txt).Length) -gt 0) -or $cipFiles.Length -gt 0) {
         $policyIDs = Get-Content .\disabledPolicies.txt
         
-        foreach($policyID in $policyIDs){
+        foreach ($policyID in $policyIDs) {
             # .\ciptool.exe --update-policy "$policyID.cip" #Deploy policy
-            echo "[+] Policy $policyID Enabled"
+            Write-Output "[+] Policy $policyID Enabled"
         }
         #save enabled policies
-        echo "$policyIDs">> enabledPolicies.txt        
+        Write-Output "$policyIDs">> enabledPolicies.txt        
         #remove disabledPolicies.txt
         Remove-Item -Path $policyPath
     }
-    else{
+    else {
         write-host "[-] No Policy to enable"
     }
 }
@@ -280,17 +271,6 @@ function resetWDAC() {
     
 }
 
-
-switch ($command) {
-    "testWDAC" { testWDAC $testAppPath $App; Break }
-    "setupWDAC" { setupWDAC $policyPath $DenyAppPath $AllowAppPath; Break }
-    "enableWDAC" { enableWDAC; Break }
-    "resetWDAC" { resetWDAC; Break }
-    default { showUsage; Break }
-}
-
-
-
 <#This is to initalise TestWDAC#>
 #path to app
 [string]$testAppPath = "C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe";
@@ -299,4 +279,15 @@ switch ($command) {
 
 #initiates the test function
 #testWDAC -testAppPath $testAppPath -App $App; -- commented out for testing)
+
+
+switch ($command) {
+    "testWDAC" { testWDAC $testAppPath $App; Break }
+    "setupWDAC" { setupWDAC $policyPath $DenyAppPath; Break }
+    "enableWDAC" { enableWDAC; Break }
+    "resetWDAC" { resetWDAC; Break }
+    default { showUsage; Break }
+}
+
+
 
