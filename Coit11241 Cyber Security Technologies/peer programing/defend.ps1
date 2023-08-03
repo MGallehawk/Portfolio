@@ -15,7 +15,7 @@ Scope:
 -resetWdac() removes block policy
 #>
 
-param([parameter(Mandatory = $false,Position=0)]$command, $policyPath, $testAppPath, $App, $DenyAppPath)
+param([parameter(Mandatory = $false,Position=0)]$command, $policyPath, $testAppPath, $App, [string]$DenyAppPath, [string]$AllowAppPath)
 
 function showUsage() {
     Write-Host "Usage: defend.ps1 <command>"
@@ -142,7 +142,8 @@ test4App -app $App;
 
 function createWDACPolicy(){
      param (
-        [Parameter(Mandatory=$false, Position=0)][string]$DenyAppPath   # The path to the binary to block (optional)
+        [Parameter(Position=0)][string]$DenyAppPath,   # The path to the binary to block (optional)
+        [Parameter(Position=1)][string]$AllowAppPath
     )
 
     try{
@@ -178,11 +179,19 @@ function createWDACPolicy(){
         if ($DenyAppPath) {
             # Add blocking rules for specified binary if provided
             $DenyRules = @()
-            forEach($Path in $BinaryPath){
+            forEach($Path in $DenyAppPath){
                 $DenyRules += New-CIPolicyRule -Level FileName -DriverFilePath $Path -Fallback SignedVersion,Publisher,Hash -Deny
             }
-            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules + $DenyRules
-        } else {
+            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $($PathRules+$DenyRules)  >> CIPolicyLog.txt
+        
+        }
+        elseif($AllowAppPath){
+            forEach($Path in $AllowAppPath){
+                $PathRules += New-CIPolicyRule -Level FileName -DriverFilePath $Path -Fallback SignedVersion,Publisher,Hash
+            }
+            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules  >> CIPolicyLog.txt
+        } 
+        else {
             # Merge the path rules only if no binary is specified
             Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules >> CIPolicyLog.txt
         }
@@ -201,9 +210,9 @@ function createWDACPolicy(){
 
 #creates and converts policy to .cip
 function setupWDAC() {
-    param([parameter(Mandatory = $false,Position=0)]$policyPath, [Parameter(Position=1)]$DenyAppPath)
+    param([parameter(Mandatory = $false,Position=0)]$policyPath, [Parameter(Position=1)][string]$DenyAppPath,[Parameter(Position=2)]$AllowAppPath)
 
-    createWDACPolicy $DenyAppPath
+    createWDACPolicy $DenyAppPath $AllowAppPath
 
     #check for available xml files
     $xmlFiles = Get-ChildItem -Path ".\*.xml"
@@ -274,7 +283,7 @@ function resetWDAC() {
 
 switch ($command) {
     "testWDAC" { testWDAC $testAppPath $App; Break }
-    "setupWDAC" { setupWDAC $policyPath $DenyAppPath; Break }
+    "setupWDAC" { setupWDAC $policyPath $DenyAppPath $AllowAppPath; Break }
     "enableWDAC" { enableWDAC; Break }
     "resetWDAC" { resetWDAC; Break }
     default { showUsage; Break }
