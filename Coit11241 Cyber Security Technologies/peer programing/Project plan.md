@@ -33,3 +33,6 @@ Chelsea wrote the code for the function "resetWDAC()". This function's purpose i
 - Discussing tasks
 - Setting up the basic building blocks of the tasks
 - Distributing tasks among members
+
+2nd Meeting (03/08/23 6:45pm- pm):
+- Going over what we have completed and what each function does and how
