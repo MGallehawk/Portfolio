@@ -11,17 +11,18 @@ Stopping unauthorised apps from running by implementing WDAC policy.
 ****
 Mathew: Step 2
 
-
+Mathew wrote the code for the function "testWDAC()". This function's purpose is to attempt to run an unauthorised app and notify if the app has been successfullly ran. 
 
 ****
 Francis: Step 4 and 6
 
-
+Francis wrote the code for the function "setupWDAC()". This function's purpose is to compile a block of WDAC policy to a ".cip." file.
+Another code that was written by Francis was for the function "enableWDAC()". This function will apply the WDAC block policy. 
 
 ****
 Chelsea: Step 8
 
-
+Chelsea wrote the code for the function 
 
 
 
