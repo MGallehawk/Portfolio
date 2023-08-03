@@ -15,14 +15,23 @@ Scope:
 -resetWdac() removes block policy
 #>
 
+param([parameter(Mandatory = $false,Position=0)]$command,$policyPath,$testAppPath,$App)
 
 function showUsage() {
     Write-Host "Usage: defend.ps1 <command>"
     Write-Host "Commands:"
-    Write-Host "  testWDAC"
-    Write-Host "  setupWDAC"
+    Write-Host "  testWDAC -testAppPath <path> -App <app name>"
+    Write-Host "  setupWDAC -policyPath <path>"
     Write-Host "  enableWDAC"
     Write-Host "  resetWDAC"
+}
+
+function isNotEmpty([String]$value){
+    return -not [string]::IsNullOrWhiteSpace($value)
+}
+
+function isEmpty([String]$value){
+    return [string]::IsNullOrWhiteSpace($value)
 }
 
 function testWDAC() {
@@ -30,10 +39,13 @@ function testWDAC() {
     
 }
 
-#converts policy to .cip
+
+
+#converts policy to {GUID}.cip
 function setupWDAC() {
-    $policyPath = Read-Host "Enter Policy Path"
-    if((Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml])){
+    param([parameter(Mandatory = $false,Position=0)]$policyPath)
+    # $policyPath = Read-Host "Enter Policy Path"
+    if((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml]) ){
         #get policy ID
         [xml]$xml = Get-Content $policyPath
         $policyID = $xml.Sipolicy.PolicyTypeID
@@ -45,7 +57,11 @@ function setupWDAC() {
         echo "[~] Deployed Policy: .\defend.ps1 enableWDAC"
     }
     else{
-        write-host "[-] Invalid Path!"
+        if(-not (isNotEmpty $policyPath)){
+            write-host "[-] No Path Provided!"
+        }else{
+            write-host "[-] Invalid Path!"
+        }
     }
     
 }
@@ -57,9 +73,12 @@ function enableWDAC([String]$policyPath=".\disabledPolicies.txt") {
     #     Break
     # }
 
+    #check available cip files
+    $cipFiles = Get-ChildItem -Path .\*.cip
     #enable policy using citoo.exe
     if((Test-Path $policyPath) -and $($(Get-Content .\disabledPolicies.txt).Length) -gt 0){
         $policyIDs = Get-Content .\disabledPolicies.txt
+        
         foreach($policyID in $policyIDs){
             # .\ciptool.exe --update-policy "$policyID.cip" #Deploy policy
             echo "[+] Policy $policyID Enabled"
@@ -82,10 +101,10 @@ function resetWDAC() {
 }
 
 
-switch ($args[0]) {
-    "testWDAC" { testWDAC }
-    "setupWDAC" { setupWDAC }
-    "enableWDAC" { enableWDAC }
-    "resetWDAC" { resetWDAC }
-    default { showUsage }
+switch ($command) {
+    "testWDAC" { testWDAC $testAppPath $App; Break }
+    "setupWDAC" { setupWDAC $policyPath; Break }
+    "enableWDAC" { enableWDAC; Break }
+    "resetWDAC" { resetWDAC; Break }
+    default { showUsage; Break }
 }
