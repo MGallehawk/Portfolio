@@ -15,7 +15,7 @@ Scope:
 -resetWdac() removes block policy
 #>
 
-param([parameter(Mandatory = $false,Position=0)]$command, $policyPath, $testAppPath, $App)
+param([parameter(Mandatory = $false,Position=0)]$command, $policyPath, $testAppPath, $App, $DenyAppPath)
 
 function showUsage() {
     Write-Host "Usage: defend.ps1 <command>"
@@ -142,7 +142,7 @@ test4App -app $App;
 
 function createWDACPolicy(){
      param (
-        [string]$DenyAppPath   # The path to the binary to block (optional)
+        [Parameter(Mandatory=$false, Position=0)][string]$DenyAppPath   # The path to the binary to block (optional)
     )
 
     try{
@@ -199,26 +199,35 @@ function createWDACPolicy(){
 
 
 
-#converts policy to .cip
+#creates and converts policy to .cip
 function setupWDAC() {
-    param([parameter(Mandatory = $false,Position=0)]$policyPath)
+    param([parameter(Mandatory = $false,Position=0)]$policyPath, [Parameter(Position=1)]$DenyAppPath)
+
+    createWDACPolicy $DenyAppPath
+
     #check for available xml files
-    $xmlFiles = Get-ChildItem -Path .\*.xml
+    $xmlFiles = Get-ChildItem -Path ".\*.xml"
 
     # $policyPath = Read-Host "Enter Policy Path"
-    if((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml]) -or $xmlFiles.Length -gt 0 ){
+    if(((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml])) -or (($xmlFiles|Measure-Object).Count -eq 1) ){
+        [xml]$xml = ''
+        if($policyPath){
+            $xml = Get-Content $policyPath
+        }else{
+            $xml = Get-Content $xmlFiles
+            $policyPath = "$PSScriptRoot\$($xmlFiles.Name)"
+        }
         #get policy ID
-        [xml]$xml = Get-Content $policyPath
-        $policyID = $xml.Sipolicy.PolicyTypeID
+        $policyID = $xml.Sipolicy.PolicyID
+
         #convert policy to .cip
         ConvertFrom-CIPolicy -XmlFilePath $policyPath -BinaryFilePath "$policyID.cip"
-        #save policy ID
-        echo "$policyID" >> disabledPolicies.txt
-        echo "[+] Policy $policyID Created!\n"
+
+        echo "[+] Policy $policyID Created!"
         echo "[~] Deployed Policy: .\defend.ps1 enableWDAC"
     }
     else{
-        if(-not (isNotEmpty $policyPath)){
+        if( (isEmpty $policyPath)){
             write-host "[-] No Path Provided!"
             showUsage
         }else{
@@ -265,7 +274,7 @@ function resetWDAC() {
 
 switch ($command) {
     "testWDAC" { testWDAC $testAppPath $App; Break }
-    "setupWDAC" { setupWDAC $policyPath; Break }
+    "setupWDAC" { setupWDAC $policyPath $DenyAppPath; Break }
     "enableWDAC" { enableWDAC; Break }
     "resetWDAC" { resetWDAC; Break }
     default { showUsage; Break }
