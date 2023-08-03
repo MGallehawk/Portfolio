@@ -34,17 +34,6 @@ function isEmpty([String]$value){
     return [string]::IsNullOrWhiteSpace($value)
 }
 
-<<<<<<< HEAD
-function isNotEmpty([String]$value){
-    return -not [string]::IsNullOrWhiteSpace($value)
-}
-
-function isEmpty([String]$value){
-    return [string]::IsNullOrWhiteSpace($value)
-}
-
-
-=======
 
 #testWdac function takes in two parameters
 function testWDAC {
@@ -52,7 +41,6 @@ function testWDAC {
         [Parameter(Mandatory = $true, Position=0)] $testAppPath, 
         [Parameter(Mandatory = $true, Position=1)] $App
     )
->>>>>>> 0890652577f35169106bb7d060f46bde4521f9f4
     
     
 #function opens the specified exe by file path
@@ -73,11 +61,6 @@ function startBadApp {
     
 }
 
-<<<<<<< HEAD
-
-
-#converts policy to {GUID}.cip
-=======
 #function logs all instances of running processors that match the specifies app
 function test4App {
     param (
@@ -160,7 +143,6 @@ test4App -app $App;
 
 
 #converts policy to .cip
->>>>>>> 0890652577f35169106bb7d060f46bde4521f9f4
 function setupWDAC() {
     param([parameter(Mandatory = $false,Position=0)]$policyPath)
     # $policyPath = Read-Host "Enter Policy Path"
@@ -237,5 +219,5 @@ switch ($command) {
 [string]$App = "acrobat";
 
 #initiates the test function
-testWDAC -testAppPath $testAppPath -App $App;
+#testWDAC -testAppPath $testAppPath -App $App; -- commented out for testing)
 
