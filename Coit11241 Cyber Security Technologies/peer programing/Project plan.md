@@ -22,7 +22,9 @@ Another code that was written by Francis was for the function "enableWDAC()". Th
 ****
 Chelsea: Step 8
 
-Chelsea wrote the code for the function 
+Chelsea wrote the code for the function "resetWDAC()". This function's purpose is to remove the WDAC block policy. 
+
+- Use citool.exe
 
 
 
