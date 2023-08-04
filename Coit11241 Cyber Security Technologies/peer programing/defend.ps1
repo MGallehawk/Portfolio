@@ -15,7 +15,14 @@ Scope:
 -resetWdac() removes block policy
 #>
 
-param([parameter(Mandatory = $false,Position=0)]$command, $policyPath, $testAppPath, $App, [string]$DenyAppPath, [string]$AllowAppPath)
+param([parameter(Mandatory = $false,Position=0)]$command, $policyPath,
+ $testAppPath, $App, [string]$DenyAppPath, [string]$AllowAppPath, [string]$DefaultPolicyPath)
+
+    #Ask user to run as admininstrator
+    # if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { 
+    #     Write-Warning "You do not have Administrator rights to run this script!`nPlease re-run this script as an Administrator!"
+    #     Break
+    # }
 
 function showUsage() {
     Write-Host "Usage: defend.ps1 <command>"
@@ -143,16 +150,43 @@ test4App -app $App;
 function createWDACPolicy(){
      param (
         [Parameter(Position=0)][string]$DenyAppPath,   # The path to the binary to block (optional)
-        [Parameter(Position=1)][string]$AllowAppPath
+        [Parameter(Position=1)][string]$AllowAppPath,
+        [Parameter(Position=2)][String]$DefaultPolicyPath
+
     )
+    #clear cip files from root folder if exist
+    $cipFiles = Get-ChildItem -Path ".\*.cip"
+    if(($cipFiles|Measure-Object).Count -gt 0){
+        forEach($file in $cipFiles){
+            Remove-Item $file
+        }
 
+    }
     try{
+        $PathRules = @()
 
+        #create Destination Path
         $PolicyName= "DenyAllPolicy"
         $WDACPolicy=$PSScriptRoot+"\$PolicyName.xml"
-        $allowMicrosoft = $env:windir+"\schemas\CodeIntegrity\ExamplePolicies\AllowMicrosoft.xml"
 
-        Copy-Item  $allowMicrosoft $WDACPolicy
+        if(isEmpty $DefaultPolicyPath){
+
+            #Load Default Policy
+            $DefaultPolicyPath = $env:windir+"\schemas\CodeIntegrity\ExamplePolicies\AllowMicrosoft.xml"
+
+           
+
+            #Move policy to path
+            Copy-Item  $DefaultPolicyPath $WDACPolicy
+
+            #Add allow rules
+            $PathRules += New-CIPolicyRule -FilePathRule "%windir%\*"
+            $PathRules += New-CIPolicyRule -FilePathRule "%OSDrive%\Program Files\*"
+            $PathRules += New-CIPolicyRule -FilePathRule "%OSDrive%\Program Files (x86)\*"
+        }
+       
+
+       
 
         Set-CIPolicyIdInfo -FilePath $WDACPolicy -PolicyName $PolicyName -ResetPolicyID
         Set-CIPolicyVersion -FilePath $WDACPolicy -Version "1.0.0.0"
@@ -169,10 +203,8 @@ function createWDACPolicy(){
         Set-RuleOption -FilePath $WDACPolicy -Option 17 # Enable Allow Supplemental
         Set-RuleOption -FilePath $WDACPolicy -Option 19 # Enable Dynamic Code Security
 
-        $PathRules = @()
-        $PathRules += New-CIPolicyRule -FilePathRule "%windir%\*"
-        $PathRules += New-CIPolicyRule -FilePathRule "%OSDrive%\Program Files\*"
-        $PathRules += New-CIPolicyRule -FilePathRule "%OSDrive%\Program Files (x86)\*"
+        
+        
 
  
 
@@ -182,39 +214,37 @@ function createWDACPolicy(){
             forEach($Path in $DenyAppPath){
                 $DenyRules += New-CIPolicyRule -Level FileName -DriverFilePath $Path -Fallback SignedVersion,Publisher,Hash -Deny
             }
-            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $($PathRules+$DenyRules)  >> CIPolicyLog.txt
+            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $($PathRules+$DenyRules)  |Select-Object TypeId,Id,Name
         
         }
         elseif($AllowAppPath){
             forEach($Path in $AllowAppPath){
                 $PathRules += New-CIPolicyRule -Level FileName -DriverFilePath $Path -Fallback SignedVersion,Publisher,Hash
             }
-            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules  >> CIPolicyLog.txt
+            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules  |Select-Object TypeId,Id,Name
         } 
         else {
             # Merge the path rules only if no binary is specified
-            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules >> CIPolicyLog.txt
+            Merge-CIPolicy -OutputFilePath $WDACPolicy -PolicyPaths $WDACPolicy -Rules $PathRules  |Select-Object TypeId,Id,Name
         }
     }
     catch{
         Write-Host "Failed to create WDAC Policy: $_"
-        
+        exit
     }
    
 
-    #create supplemental policy
-    # Set-CIPolicyIdInfo -FilePath ".\supplemental_policy.xml" [-SupplementsBasePolicyID <BasePolicyGUID>] [-BasePolicyToSupplementPath <basepolicy_path_>] -PolicyId <policy_Id> -PolicyName <PolicyName>
 }
 
 
 
 #creates and converts policy to .cip
 function setupWDAC() {
-    param([parameter(Mandatory = $false,Position=0)]$policyPath, [Parameter(Position=1)][string]$DenyAppPath,[Parameter(Position=2)]$AllowAppPath)
+    param([parameter(Mandatory = $false,Position=0)]$policyPath, [Parameter(Position=1)][string]$DenyAppPath,[Parameter(Position=2)]$AllowAppPath,[Parameter(Position=3)]$DefaultPolicyPath)
 
     $xmlFiles = ""
     if(-not ($policyPath)){
-        createWDACPolicy $DenyAppPath $AllowAppPath
+        createWDACPolicy $DenyAppPath $AllowAppPath $DefaultPolicyPath
         #check for available xml files
         $xmlFiles = Get-ChildItem -Path ".\*.xml"
     }
@@ -234,10 +264,10 @@ function setupWDAC() {
         $policyID = $xml.Sipolicy.PolicyID
 
         #convert policy to .cip
-        ConvertFrom-CIPolicy -XmlFilePath $policyPath -BinaryFilePath "$policyID.cip"
-
-        echo "[+] Policy $policyID Created!"
-        echo "[~] Deployed Policy: .\defend.ps1 enableWDAC"
+        ConvertFrom-CIPolicy -XmlFilePath $policyPath -BinaryFilePath "$policyID.cip"  | Out-Null
+        Write-Output ""
+        Write-Output "[+] Policy $policyID Created!"
+        Write-Output "[~] Deployed Policy: .\defend.ps1 enableWDAC"
     }
     else{
         if( (isEmpty $policyPath)){
@@ -252,16 +282,12 @@ function setupWDAC() {
 
 function enableWDAC() {
     
-    #Might need to run as admin
-    # if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { 
-    #     Write-Warning "You do not have Administrator rights to run this script!`nPlease re-run this script as an Administrator!"
-    #     Break
-    # }
+ 
 
     #check available cip files
     $cipFiles = Get-ChildItem -Path ".\*.cip"
     #enable policy using citoo.exe
-    if( ($cipFiles|Measure-Object).Count -gt 1){
+    if( ($cipFiles|Measure-Object).Count -gt 0){
 
         
 
@@ -276,12 +302,13 @@ function enableWDAC() {
                 New-Item -ItemType Directory -Path $folderPath -Force | Out-Null
             }
             # .\ciptool.exe --update-policy "$policyID.cip" #Deploy policy
-            echo "[+] Policy $policyID Enabled"
+            Write-Host "[+] Policy $policyID Enabled"
 
        
 
             # Move the file inside the folder.
             Move-Item -Path "$PSScriptRoot\$fileName" -Destination $fullPath -Force | Out-Null
+            
         }
 
     }
@@ -302,7 +329,7 @@ function resetWDAC() {
 
 switch ($command) {
     "testWDAC" { testWDAC $testAppPath $App; Break }
-    "setupWDAC" { setupWDAC $policyPath $DenyAppPath $AllowAppPath; Break }
+    "setupWDAC" { setupWDAC $policyPath $DenyAppPath $AllowAppPath $DefaultPolicyPath; Break }
     "enableWDAC" { enableWDAC; Break }
     "resetWDAC" { resetWDAC; Break }
     default { showUsage; Break }
