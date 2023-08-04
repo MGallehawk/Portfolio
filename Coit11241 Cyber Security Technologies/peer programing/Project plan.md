@@ -38,3 +38,5 @@ Chelsea wrote the code for the function "resetWDAC()". This function's purpose i
 - Going over what we have completed and what each function does and how
 - Chelsea got help and assistance with the resetWDAC function code
 - Organised a 3rd meeting for recording the presentation
+
+3rd Meeting (04/08/23 6:50pm -
