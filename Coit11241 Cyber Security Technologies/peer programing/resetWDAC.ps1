@@ -15,7 +15,13 @@ remove policy PolicyGUID
 
 #>
 
-function resetWDAC() {
-  
+function resetWDAC()
+{
+    $policyArray = @((Get-ChildItem -Path "$PSScriptRoot\ActivePolicies" | where Extension = ".cip").Name.Replace(".cip", ""))
     
+    foreach ($policyGuid in policyArray)
+    {
+        .\citool.exe --remove-policy $policyGuid
+    }
+
 }
