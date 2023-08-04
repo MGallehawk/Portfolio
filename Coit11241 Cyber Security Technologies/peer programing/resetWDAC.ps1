@@ -5,23 +5,28 @@ Use citool.exe
 Look at microsoft
 Use google and chatgpt
 
-setup wdac creates the policy and creates a binary file
-use (get childitem | where extension = ".cip").Name.Replace(".cip", "")     This gives me all of the objects
-Use citool.exe
-
-remove policy PolicyGUID
-
-
-
 #>
 
 function resetWDAC()
 {
-    $policyArray = @((Get-ChildItem -Path "$PSScriptRoot\ActivePolicies" | where Extension = ".cip").Name.Replace(".cip", ""))
-    
-    foreach ($policyGuid in policyArray)
-    {
-        .\citool.exe --remove-policy $policyGuid
-    }
 
+    $folderPath = "$PSScriptRoot\ActivePolicies"
+
+    if ((Get-ChildItem -Path $folderPath).Count -gt 0)
+    {
+        $policyArray = @((Get-ChildItem -Path $folderPath | where Extension = ".cip").Name.Replace(".cip", ""))
+    
+        foreach ($policyGuid in policyArray)
+        {
+            .\citool.exe --remove-policy $policyGuid
+        }
+
+        gpupdate /force
+
+    }
+    else 
+    {
+        Write-Output "There are no policies currently set by WDAC"
+    }
+    
 }
