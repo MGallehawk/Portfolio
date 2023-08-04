@@ -28,7 +28,7 @@ function showUsage() {
     Write-Host "Usage: defend.ps1 <command>"
     Write-Host "Commands:"
     Write-Host "  testWDAC -testAppPath <path> -App <app name>"
-    Write-Host "  setupWDAC -policyPath <path> | *leave blank to create a new policy*"
+    Write-Host "  setupWDAC  [*leave blank to create a new policy*] | [-policyPath <path>] | [-DenyAppPath <path> |-AllowAppPath <path> |-DefaultPolicyPath <path>]"
     Write-Host "  enableWDAC"
     Write-Host "  resetWDAC"
 }
