@@ -328,7 +328,7 @@ function resetWDAC()
 
     if ((Get-ChildItem -Path $folderPath).Count -gt 0)
     {
-        $policyArray = @((Get-ChildItem -Path $folderPath | where Extension = ".cip").Name.Replace(".cip", ""))
+        $policyArray = @((Get-ChildItem -Path $folderPath)) | where Extension = ".cip").Name.Replace(".cip", ""))
     
         foreach ($policyGuid in policyArray)
         {
