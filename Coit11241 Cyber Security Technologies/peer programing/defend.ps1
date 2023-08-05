@@ -19,10 +19,10 @@ param([parameter(Mandatory = $false,Position=0)]$command, $policyPath,
  $testAppPath, $App, [string]$DenyAppPath, [string]$AllowAppPath, [string]$DefaultPolicyPath)
 
     #Ask user to run as admininstrator
-    # if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { 
-    #     Write-Warning "You do not have Administrator rights to run this script!`nPlease re-run this script as an Administrator!"
-    #     Break
-    # }
+    if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { 
+        Write-Warning "You do not have Administrator rights to run this script!`nPlease re-run this script as an Administrator!"
+        Break
+    }
 
 function showUsage() {
     Write-Host "Usage: defend.ps1 <command>"
@@ -40,7 +40,6 @@ function isNotEmpty([String]$value){
 function isEmpty([String]$value){
     return [string]::IsNullOrWhiteSpace($value)
 }
-
 
 #testWdac function takes in two parameters
 function testWDAC {
@@ -135,11 +134,6 @@ function test4App {
         $LogObject | Export-Csv -Path $LogFile -Append -NoTypeInformation -Force;
     }
 }
-<#Sanity check#>
-<#
-$testAppPath
-$App 
-#>
 
 #starts the app
 startBadApp -appPath $testAppPath
@@ -160,7 +154,6 @@ function createWDACPolicy(){
         forEach($file in $cipFiles){
             Remove-Item $file
         }
-
     }
     try{
         $PathRules = @()
@@ -174,8 +167,6 @@ function createWDACPolicy(){
             #Load Default Policy
             $DefaultPolicyPath = $env:windir+"\schemas\CodeIntegrity\ExamplePolicies\AllowMicrosoft.xml"
 
-           
-
             #Move policy to path
             Copy-Item  $DefaultPolicyPath $WDACPolicy
 
@@ -184,9 +175,6 @@ function createWDACPolicy(){
             $PathRules += New-CIPolicyRule -FilePathRule "%OSDrive%\Program Files\*"
             $PathRules += New-CIPolicyRule -FilePathRule "%OSDrive%\Program Files (x86)\*"
         }
-       
-
-       
 
         Set-CIPolicyIdInfo -FilePath $WDACPolicy -PolicyName $PolicyName -ResetPolicyID
         Set-CIPolicyVersion -FilePath $WDACPolicy -Version "1.0.0.0"
@@ -194,7 +182,7 @@ function createWDACPolicy(){
 
         Set-RuleOption -FilePath $WDACPolicy -Option 0 # Enabled UMCI
         Set-RuleOption -FilePath $WDACPolicy -Option 1 # Enable Boot Menu Protection
-        Set-RuleOption -FilePath $WDACPolicy -Option 3 # Enable Audit Mode
+        Set-RuleOption -FilePath $WDACPolicy -Option 3 -delete # Enable Audit Mode
         Set-RuleOption -FilePath $WDACPolicy -Option 4 # Disable Flight Signing
         Set-RuleOption -FilePath $WDACPolicy -Option 6 # Enable Unsigned Policy
         Set-RuleOption -FilePath $WDACPolicy -Option 10 # Enable Boot Audit on Failure
@@ -202,11 +190,6 @@ function createWDACPolicy(){
         Set-RuleOption -FilePath $WDACPolicy -Option 16 # Enable No Reboot
         Set-RuleOption -FilePath $WDACPolicy -Option 17 # Enable Allow Supplemental
         Set-RuleOption -FilePath $WDACPolicy -Option 19 # Enable Dynamic Code Security
-
-        
-        
-
- 
 
         if ($DenyAppPath) {
             # Add blocking rules for specified binary if provided
@@ -232,11 +215,8 @@ function createWDACPolicy(){
         Write-Host "Failed to create WDAC Policy: $_"
         exit
     }
-   
 
 }
-
-
 
 #creates and converts policy to .cip
 function setupWDAC() {
@@ -249,9 +229,6 @@ function setupWDAC() {
         $xmlFiles = Get-ChildItem -Path ".\*.xml"
     }
 
-    
-
-    # $policyPath = Read-Host "Enter Policy Path"
     if(((isNotEmpty($policyPath)) -and (Test-Path $policyPath) -and ((Get-Content $policyPath) -as [xml])) -or ((($xmlFiles|Measure-Object).Count -eq 1) -and (-not $policyPath)) ){
         [xml]$xml = ''
         if($policyPath){
@@ -282,8 +259,6 @@ function setupWDAC() {
 
 function enableWDAC() {
     
- 
-
     #check available cip files
     $cipFiles = Get-ChildItem -Path ".\*.cip"
     #enable policy using citoo.exe
@@ -301,14 +276,11 @@ function enableWDAC() {
             if (-Not (Test-Path $folderPath -PathType Container)) {
                 New-Item -ItemType Directory -Path $folderPath -Force | Out-Null
             }
-            # .\ciptool.exe --update-policy "$policyID.cip" #Deploy policy
+            citool.exe --update-policy "$policyID.cip" #Deploy policy
             Write-Host "[+] Policy $policyID Enabled"
-
-       
 
             # Move the file inside the folder.
             Move-Item -Path "$PSScriptRoot\$fileName" -Destination $fullPath -Force | Out-Null
-            
         }
 
     }
@@ -319,13 +291,28 @@ function enableWDAC() {
     }
 }
 
-
-
 function resetWDAC() {
-  
+   $folderPath = $PSScriptRoot + "\ActivePolicies"
+
+    if ((Get-ChildItem -Path $folderPath).Count -gt 0) {
+        $policyArray = @(((Get-ChildItem -Path $folderPath) | Where-Object -Property Extension -like '*.cip').BaseName)# (".cip".Name.Replace(".cip", ""))
+    
+        foreach ($policyGuid in $policyArray) {
+            citool.exe --remove-policy $policyGuid
+        }
+    }
+
+    else {
+        Write-Output "There are no policies currently set by WDAC"
+    }
+    
+    #cleanup
+    $a = (Get-ChildItem -Path $folderPath) | Where-Object -Property Extension -like '*.cip'
+    $a | foreach-object {
+        remove-Item -path $_.FullName
+    }
     
 }
-
 
 switch ($command) {
     "testWDAC" { testWDAC $testAppPath $App; Break }
@@ -336,12 +323,11 @@ switch ($command) {
 }
 
 
-
 <#This is to initalise TestWDAC#>
 #path to app
-[string]$testAppPath = "C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe";
+# [string]$testAppPath = "C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe";
 #approximate name or description of app
-[string]$App = "acrobat";
+# [string]$App = "acrobat";
 
 #initiates the test function
 #testWDAC -testAppPath $testAppPath -App $App; -- commented out for testing)
