@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <link rel="stylesheet" href="custom.css">    
+
+    <title>
+        Build a Survey Form using HTML and CSS
+    </title>
+    
+</head>
+  
+<body>
+    <h1><center>Student Programming Skills Form </center> </h1>
+  
+    <!-- Create Form -->
+    <form id="form" name="myForm" onsubmit="confirmation()" method="post"> 
+        <!-- Details -->
+         <div class="form-control">
+            <label for="studentID" id="label-id">
+                Student ID (8 digits)
+            </label>
+ 
+            <!-- Input Type Text -->
+            <input type="text"
+                   id="studentID" name="studentID" pattern="[0-9]{8}"
+                   placeholder="Enter your studentID" required />
+        </div>
+
+        <div class="form-control">
+            <label for="name" id="label-name">
+                Full Name (no more than 20 letters)
+            </label>
+ 
+            <!-- Input Type Text -->
+            <input type="text"
+                   id="name" name="fullname" maxlength="20"
+                   placeholder="Enter your name" required />
+        </div>
+  
+        <div class="form-control">
+            <label for="email" id="label-email">
+                Email (multiple emails acceptable, use "," to separate)
+            </label>
+ 
+            <!-- Input Type Email-->
+            <input type="email"
+                   id="email" name="email" 
+                   placeholder="Enter your email" multiple required />
+        </div>
+  
+       
+        <div class="form-control">
+            <label for="phone" id="label-phone">
+                Phone number (format: 1234-567-890)
+            </label>
+ 
+            <!-- Input Type tel-->
+            <input type="tel"
+                   id="phone" name="phone" pattern="[0-9]{4}-[0-9]{3}-[0-9]{3}"
+                   placeholder="Enter your phone number" required />
+        </div>
+
+  
+        <div class="form-control">
+            <label for="campus" id="label-campus">
+                Which campus are you enrolled?
+            </label>
+             
+            <!-- Dropdown options -->
+            <select name="campus" id="campus">
+                <option value="Brisbane">Brisbane</option>
+                <option value="Cairns">Cairns</option>
+                <option value="Melbourne">Melbourne</option>
+                <option value="Rockhampton">Rockhampton</option>
+                <option value="Sydney">Sydney </option>
+                <option value="Townsville">Townsville</option>
+                <option value="Online">Online</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+  
+        <div class="form-control">
+            <label>
+                Are you an international student?
+            </label>
+ 
+            <!-- Input Type Radio Button -->
+            <label for="international">
+                <input type="radio"
+                       id="international"
+                       name="category">Yes</input>
+            </label>
+            <label for="domestic">
+                <input type="radio"
+                       id="domestic"
+                       name="category">No</input>
+            </label>            
+        </div>
+  
+        <div class="form-control">
+            <label>Languages and Frameworks known
+                <small>(Check all that apply)</small>
+            </label>
+            <!-- Input Type Checkbox -->
+            <label for="inp-1">
+                <input type="checkbox"
+                       name="inp" value="C">C</input>
+            </label>
+            <label for="inp-2">
+                <input type="checkbox"
+                       name="inp" value="C++">C++</input></label>
+            <label for="inp-3">
+                <input type="checkbox"
+                       name="inp" value="C#">C#</input> </label>
+            <label for="inp-4">
+                <input type="checkbox"
+                       name="inp" value="Java">Java</input></label>
+            <label for="inp-5">
+                <input type="checkbox"
+                       name="inp" value="Python">Python</input></label>
+            <label for="inp-6">
+                <input type="checkbox"
+                       name="inp" value="JavaScript">JavaScript</input></label>
+            <label for="inp-7">
+                <input type="checkbox"
+                       name="inp" value="React">React</input></label>
+            <label for="inp-7">
+                <input type="checkbox"
+                       name="inp" value="Angular">Angular</input></label>
+            <label for="inp-7">
+                <input type="checkbox"
+                       name="inp" value="Django">Django</input></label>
+            <label for="inp-7">
+                <input type="checkbox"
+                       name="inp" value="Spring">Spring</input></label>
+        </div>
+  
+        <div class="form-control">
+            <label for="comment">
+                Comments and suggestions
+            </label>
+ 
+            <!-- multi-line text input control -->
+            <textarea name="comment" id="comment"
+                placeholder="Enter your comment here">
+            </textarea>
+        </div>
+  
+        <!-- Multi-line Text Input Control -->
+        <button type="submit" value="submit">
+            Submit
+        </button>
+    </form>
+</body>
+  
+</html>
+
+<script>
+
+    function confirmation(){
+
+        window.confirm("Survey completed. Thanks.");
+        // staticly assigned veriable
+        var title = "<h1> Data submitted</h1><br>";
+        // gets input from form
+        var studentID = document.getElementById("studentID").value;
+        var name = document.getElementById("name").value;
+        var email = document.getElementById("email").value;
+        var phone = document.getElementById("phone").value;
+        var comment = document.getElementById("comment").value;
+
+        //get from select
+        var select = document.getElementById("campus").values;
+
+        //get from radio
+        var ele = document.getElementsByTagName("input");
+        var category;
+        for (var i = 0; i < ele.length; i++){
+            if (ele[i].type == "radio"){
+                if (ele[i].checked){
+                category = ele[i].value;}
+            }
+        }
+
+        //output
+        document.write(title);
+        document.write("StudentID: " + studentID + "<br>");
+        document.write("Name: "+ name + "<br>");
+        document.write("email: "+ email + "<br>");
+        document.write("Phone: " + phone + "<br>");
+        document.write("Campus: " + select + "<br>");
+        document.write("comment: " + comment + "<br>");
+        document.write("Languages: "+ values.toString());
+
+
+
+
+
+    }
+    
+</script>

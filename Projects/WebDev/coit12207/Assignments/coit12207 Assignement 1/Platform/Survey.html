@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<!--
+Developed by mathew Gallehawk
+-utilising code from week 1 with one of my templates I developed in my Udemy course
+-has a nice responsive layout using flexbox grid and jquery to assist with scailing
+-uses hover to make buttons and other sections more interactive
+-Topic "Impact of Artificial Inteligence to workforce"
+-->
+<html>
+<head>
+  <title>Artificial Inteligence & The Workplace</title>
+  <link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+
+<body>
+  <form id="form" name="myForm" onsubmit="confirmation()" method="post">
+    <!--Nav bar sticks to the top has a shadow that applies on hover-->
+    <nav class="zone black sticky">
+      <ul class="main-nav">
+        <div class="logo"><img src="./img/trueMasters.jpg"> </div>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="Survey.html">Survey</a></li>
+      </ul>
+    </nav>
+
+    <div class="container zone">
+      <div class="textarea">
+        <h1>Survey</h1>
+
+        <!--Name capture and label-->
+        <div class="form-control">
+          <label for="name" id="label-name"> Full Name</label>
+          <input type="text" id="name" name="fullname" maxlength="20" placeholder="Enter your name" required />
+        </div>
+
+        <!--Email Capture and label-->
+        <div class="form-control">
+          <label for="email" id="label-email" name="email"> Email Address</label>
+          <input type="email" id="email" name="email" placeholder="Enter your email" multiple required />
+        </div>
+
+        <!--Mobile Captuire and label-->
+        <div class="form-control">
+          <label for="Phone" id="label-phone">Mobile Phone Number</label>
+          <input type="tel" id="phone" name="phone" pattern="[0-4]{2}[0-9]{8}"
+            placeholder="Enter your mobile Phone number" required />
+        </div>
+
+        <!--State Capture and label-->
+        <div class="form-control">
+          <label for="State" id="label-State">
+            Which State Of Australis Do You Reside?
+          </label>
+
+          <!-- Drop down-->
+          <select name="State" id="State" required>
+            <option value="Queensland">Queensland</option>
+            <option value="NewSouth">New South Wales</option>
+            <option value="Victoria">Victoria</option>
+            <option value="ACT">ACT</option>
+            <option value="WesternAustralia">Western Australia</option>
+            <option value="Tasmania">Tasmania</option>
+            <option value="NorthanTeritory">Northan Territory</option>
+            <option value="Other">Out Side Australia</option>
+          </select>
+        </div>
+
+        <!--Industry Capture and label-->
+        <div class="form-control">
+          <label for="Industry" id="labcareer">
+            What Industry Are You Currently Employed In, Or Do You Aim To Be Employed In?
+          </label>
+
+          <!-- Drop down-->
+          <select name="Industry" id="Industry">
+            <option value="Construction">Construction</option>
+            <option value="Transport">Transport</option>
+            <option value="Manufacturing">Manufacturing</option>
+            <option value="Mining">Mining</option>
+            <option value="HealthCare">Health Care</option>
+            <option value="Agriculture">Agriculture</option>
+            <option value="Retail">Retail</option>
+            <option value="Hospitality">Hospitality</option>
+            <option value="Aerospace">Aerospace</option>
+            <option value="Forestry">Forrestry</option>
+            <option value="Finance">Finance</option>
+            <option value="Technology">Technology</option>
+            <option value="UnEmployed">Unemployed</option>
+          </select>
+        </div>
+
+        <!--Impact Capture and label-->
+        <div class="form-control">
+          <label for="Impact" id="label-Impact">
+            How much positive or negative impact do you expect AI to cause to your current or future position?
+          </label>
+
+          <!-- Drop down-->
+          <select name="Impact" id="Impact" required>
+            <option value="None">None at all</option>
+            <option value="vLow">All most no impact or change</option>
+            <option value="low">Minimal Impact or change </option>
+            <option value="some">Some impact with no dramatic change</option>
+            <option value="high">Large amount change</option>
+            <option value="exHigh">Extream degree of change</option>
+          </select>
+        </div>
+
+        <!--perception Capture and label-->
+        <div class="form-control">
+          <label for="perception" id="label-perception">
+            How do you percieve the AI driven changes to your career, from positive or negative?
+          </label>
+
+          <!-- Drop down-->
+          <select name="perception" id="Perception" required>
+            <option value="None">AI will not likely impact career</option>
+            <option value="vNegative">AI will change career very detramentaly</option>
+            <option value="Negative">AI will change career detrementaly </option>
+            <option value="neautral">AI will change career in equaly positive and negative amounts</option>
+            <option value="high">AI will have a positive impact on career</option>
+            <option value="vHigh">AI will have a huge positive impact on my career</option>
+          </select>
+        </div>
+
+        <!--Qualitavive data for impact and perception-->
+        <div class="form-control">
+          <label for="qualDataPerception">
+            In a sentance or two, could you explain your answers to the previous two questions
+          </label>
+          <div>
+            <!--Multi-line text input-->
+            <textarea class="tBox" name="qualDataPerception" id="qualDataPerception"
+              placeholder="Enter your comment here" required></textarea>
+          </div>
+        </div>
+
+        <!--survey table-->
+        <div class="form-control"></div>
+        <p>Please fill out the following form, indicating how much you believe the stated sentiment relates to you</p>
+        <div class="surveyTable">
+          <div>
+            <p>Sentiment</p>
+          </div>
+          <div>
+            <p>Strongly Agree</p>
+          </div>
+          <div>
+            <p>Somewhat agree</p>
+          </div>
+          <div>
+            <p>Neutral</p>
+          </div>
+          <div>
+            <p>Disagree</p>
+          </div>
+          <div>
+            <p>Strongly Disagree</p>
+          </div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>AI has/will make my role more efficient.</label></div>
+          <div><input type="radio" name="Q1" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q1" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q1" value="Neutral"></input></div>
+          <div><input type="radio" name="Q1" value="Disagree"></input></div>
+          <div><input type="radio" name="Q1" value="Strongly Disagree"></input></div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>AI has/will reduce the demand for skilled workers in my career.</label></div>
+          <div><input type="radio" name="Q2" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q2" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q2" value="Neutral"></input></div>
+          <div><input type="radio" name="Q2" value="Disagree"></input></div>
+          <div><input type="radio" name="Q2" value="Strongly Disagree"></input></div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>My wage will be negatively imapacted by the implementation of AI in my career.</label></div>
+          <div><input type="radio" name="Q3" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q3" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q3" value="Neutral"></input></div>
+          <div><input type="radio" name="Q3" value="Disagree"></input></div>
+          <div><input type="radio" name="Q3" value="Strongly Disagree"></input></div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>My workload will/has increased as a result of AI intergration.</label></div>
+          <div><input type="radio" name="Q4" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q4" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q4" value="Neutral"></input></div>
+          <div><input type="radio" name="Q4" value="Disagree"></input></div>
+          <div><input type="radio" name="Q4" value="Strongly Disagree"></input></div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>AI has/will improve the efficiency of my tasks.</label></div>
+          <div><input type="radio" name="Q5" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q5" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q5" value="Neutral"></input></div>
+          <div><input type="radio" name="Q5" value="Disagree"></input></div>
+          <div><input type="radio" name="Q5" value="Strongly Disagree"></input></div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>I am axious about my career prospects, due the AI.</label></div>
+          <div><input type="radio" name="Q6" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q6" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q6" value="Neutral"></input></div>
+          <div><input type="radio" name="Q6" value="Disagree"></input></div>
+          <div><input type="radio" name="Q6" value="Strongly Disagree"></input></div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>My job requires creative thinking.</label></div>
+          <div><input type="radio" name="Q7" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q7" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q7" value="Neutral"></input></div>
+          <div><input type="radio" name="Q7" value="Disagree"></input></div>
+          <div><input type="radio" name="Q7" value="Strongly Disagree"></input></div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>My job requires lots or repertition.</label></div>
+          <div><input type="radio" name="Q8" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q8" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q8" value="Neutral"></input></div>
+          <div><input type="radio" name="Q8" value="Disagree"></input></div>
+          <div><input type="radio" name="Q8" value="Strongly Disagree"></input></div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>My skill set will become redundat due to AI</label></div>
+          <div><input type="radio" name="Q9" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q9" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q9" value="Neutral"></input></div>
+          <div><input type="radio" name="Q9" value="Disagree"></input></div>
+          <div><input type="radio" name="Q9" value="Strongly Disagree"></input></div>
+        </div>
+        <div class="form-control surveyTable">
+          <div><label>I am confident AI will improve my overall career prospects.</label></div>
+          <div><input type="radio" name="Q10" value="Strongly Agree" required></input></div>
+          <div><input type="radio" name="Q10" value="Somewhat agree"></input></div>
+          <div><input type="radio" name="Q10" value="Neutral"></input></div>
+          <div><input type="radio" name="Q10" value="Disagree"></input></div>
+          <div><input type="radio" name="Q10" value="Strongly Disagree"></input></div>
+        </div>
+
+        <!--check box- -->
+        <div class="form-control">
+          <label>What measures should govornments take to deal with displaced workers? <small>(Check all that
+              apply)</small> </label>
+          <div class="checkBoxArea">
+            <div class="Q11 checkBoxGrid">
+
+              <!-- Input Type Checkbox -->
+              <label for="Q11">
+                <input type="checkbox" name="Q11" value="Universal Income">Universal Income</input>
+              </label>
+              <label for="Q11">
+                <input type="checkbox" name="Q11" value="Tax AI Usage">Tax AI Usage</input></label>
+              <label for="Q11">
+                <input type="checkbox" name="Q11" value="Decrease The Cost Of Education & Reskilling.">Decrease The Cost
+                Of Education & Reskilling.</input>
+              </label>
+              <label for="Q11">
+                <input type="checkbox" name="Q11" value="Invest In Creating More Jobs">Invest In Creating More
+                Jobs</input></label>
+              <label for="Q11">
+                <input type="checkbox" name="Q11"
+                  value="Export Unemployed To South-Pole After Suitable Waiting Period">Export Unemployed To South-Pole
+                After Suitable Waiting Period</input></label>
+            </div>
+          </div>
+        </div>
+
+        <!--Qualitavive data for Further comments-->
+        <div class="form-control">
+          <label for="comments">
+            Please add any other comments you wish:
+          </label>
+          <div>
+
+            <!--Multi-line text input-->
+            <textarea class="tBox" name="comments" id="comments" placeholder="Enter your comment here"
+              required></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Footer with submit button-->
+    <div class="zone blue foot">
+      <button type="Submit" Value="submit" class="btn btn-primary btn-xl">Submit Survey</button>
+    </div>
+  </form>
+</body>
+</html>
+
+<script>
+  function confirmation() {
+    window.confirm("Survey completed. thank you");
+
+    //personal data for selling
+    var name = document.getElementById("name").value;
+    var email = document.getElementById("email").value;
+    var phone = document.getElementById("phone").value;
+    var state = document.getElementById("State").value;
+    var industry = document.getElementById("Industry").value;
+
+    //response data
+    var impact = document.getElementById("Impact").value;
+    var perception = document.getElementById("Perception").value;
+    var response = document.getElementById("qualDataPerception").value;
+
+    //loop for Q1
+    var ele = document.getElementsByName("Q1");
+    var Q1;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q1 = ele[i].value;
+      }
+    }
+    //loop for Q2
+    var ele = document.getElementsByName("Q2");
+    var Q2;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q2 = ele[i].value;
+      }
+    }
+    //loop for Q1
+    var ele = document.getElementsByName("Q3");
+    var Q3;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q3 = ele[i].value;
+      }
+    }
+    //loop for Q4
+    var ele = document.getElementsByName("Q4");
+    var Q4;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q4 = ele[i].value;
+      }
+    }
+    //loop for Q5
+    var ele = document.getElementsByName("Q5");
+    var Q5;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q5 = ele[i].value;
+      }
+    }
+    //loop for Q1
+    var ele = document.getElementsByName("Q6");
+    var Q6;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q6 = ele[i].value;
+      }
+    }
+    //loop for Q7
+    var ele = document.getElementsByName("Q7");
+    var Q7;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q7 = ele[i].value;
+      }
+    }
+    //loop for Q8
+    var ele = document.getElementsByName("Q8");
+    var Q8;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q8 = ele[i].value;
+      }
+    }
+    //loop for Q9
+    var ele = document.getElementsByName("Q9");
+    var Q9;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q9 = ele[i].value;
+      }
+    }
+    //loop for Q10
+    var ele = document.getElementsByName("Q10");
+    var Q10;
+    for (i = 0; i < ele.length; i++) {
+      if (ele[i].type == "radio") {
+        if (ele[i].checked)
+          Q10 = ele[i].value;
+      }
+    }
+
+    //loop for q11 checkboxes
+    var Q11 = document.getElementsByName("Q11");
+    var values = []
+    for (var i = 0; i < Q11.length; i++) {
+      if (Q11[i].checked == true) {
+        values.push(Q11[i].value);
+      }
+    }
+
+    var comments = document.getElementById("comments").value;
+    //string builders
+    var title = "<h1>Your submission has been recieved</h1><br>";
+    var transperency = ("In the interests of transperancy, your data will remain private and confidential as we sell it to interested brokers.");
+    var pData = ("Personal data collected: " + "<br>" + "Name: " + name + "<br>" + "Email: " + email + "<br>" + "Mobile Phone Number: " + phone + "<br>" + "State of Residence: " + state + "<br>" + "Industry: " + industry + "<br>");
+    var thanks = ("Thank you " + name + " for completing our servey. Your data will help us understand and mitigate social and employment issues arrising from the advent of AI.");
+    var results = ("Reported Impact to User: " + impact + "<br>" + "Reported Perception of AI for the user: " + perception + "<br>" + "Reported justification of response from user: " + response + "<br>" + "AI has/will make my role more efficient: " + Q1 + "<br>" + "AI has/will reduce the demand for skilled workers in my career: " + Q2 + "<br>" + "My wage will be negatively imapacted by the implementation of AI in my career: " + Q3 + "<br>" + "My workload will/has increased as a result of AI intergration: " + Q4 + "<br>" + "AI has/will improve the efficiency of my tasks: " + Q5 + "<br>" + "I am axious about my career prospects, due the AI: " + Q6 + "<br>" + "My job requires creative thinking: " + Q7 + "<br>" + "My job requires lots or repertition: " + Q8 + "<br>" + "My skill set will become redundat due to AI: " + Q9 + "<br>" + "I am confident AI will improve my overall career prospects: " + Q10 + "<br>" + "What measures should govornments take to deal with displaced workers? " + values.toString() + "<br>" + "further comments: " + comments);
+
+    // output
+    document.write(title);
+    document.write(thanks + "<br>");
+    document.write(pData + "<br>");
+    document.write(transperency + "<br>");
+    document.write(results + "<br>");
+  }
+</script>
