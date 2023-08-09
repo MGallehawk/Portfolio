@@ -1,9 +1,0 @@
-
-- for removing phishing emails
-- first create and run a search in complience admin center
-- verify that the recovered emails only pertaing to the phishing emaiils
-- run this in compliance powershell with Remove Phishing Message replaced bby the name of the search
-
-
-New-ComplianceSearchAction -SearchName "INC0035495" -Purge -PurgeType HardDelete
-

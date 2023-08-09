@@ -1,1 +1,0 @@
-(Get-ADGroup "M365 E5" -Properties *).Member.Count

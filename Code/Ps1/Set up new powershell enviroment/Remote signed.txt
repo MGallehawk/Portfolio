@@ -1,5 +1,0 @@
-#setting execution policy is the first step to be able to run and powershell scripts, this is set to restricted by defult
-run
-
-
-Set-ExecutionPolicy RemoteSigned

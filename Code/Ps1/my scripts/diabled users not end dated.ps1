@@ -1,2 +1,0 @@
-﻿$ExportPath = 'C:\Users\ad-e103719\Desktop\disabled-not-end-dated.csv'
-Get-ADUser -Filter  {(Enabled -eq $false)} | ? { ($_.distinguishedname -notlike '*End-dated Users*') } | ? { ($_.distinguishedname -notlike '*Branch-Mailboxes*') } | ? { ($_.distinguishedname -notlike '*Branch-Phones*') } | Select-object Name | Export-Csv -NoType $ExportPath

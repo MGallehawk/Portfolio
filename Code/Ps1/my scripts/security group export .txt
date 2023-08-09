@@ -1,1 +1,0 @@
-Get-ADGroupMember -identity "M365 E5" | select name | Export-csv -path C:\Users\ad-e103719\Desktop\e5Export.csv -Notypeinformation
