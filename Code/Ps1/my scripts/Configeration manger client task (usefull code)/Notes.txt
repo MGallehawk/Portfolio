@@ -1,0 +1,28 @@
+- i was provided a list of devices that where comanaged after the intune migration,
+- i was tasked with uninstalling "configeration manager client" from the list of pcs.
+- i attempted to automate this porcess it didnt go as well as i hoped but made it work
+- complication:
+-1 could not run WMIC /node... as one line,
+-2 could not pass veriables in using foreach once WMIC was active.
+-3 could not pass a confirm or supress switch. so yes had to be selected for each one
+-4 not all machines on the list where on or even existed (been re iamged and enrolled in mem).
+-5 host names caused issues ip address worked better
+
+solution 
+-1 
+--created a automated script that passes through the list and for each active clien pulls a list of avalible services.
+--when this completed i would copy the out put to word and use find function to contrast find the machines with the service.
+--added these pc to another excell sheet
+
+-2 
+--created an automated script that takes the devices from the previous solution and for each converts host name to ip address and builds the uninstall comad.
+--this is output to a comand builder csv file
+
+-3 
+-- ran up as many powershell screens as i could fit in my 4 monitors and passed the monands from comand builder file into them.
+
+repeated this process once a day for three days until no further pcs where detected with the service. 
+
+ 
+
+this script may be usefull if i ever wanted to i dont know uninstall teams from everything or something like that.

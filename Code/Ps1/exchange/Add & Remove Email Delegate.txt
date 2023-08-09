@@ -1,0 +1,11 @@
+-used in exchange powershell,
+-quick way of assigning delegates for email accounts.
+-replication time roughly ten minutes
+-also usefull for getting rid of delegate inboxes that stick in users outlook due to auto mapping error.
+--to address this add the mailbox using the first one then remove it with the second.
+
+
+Add-MailboxPermission -Identity "jonno_adams@gjames.com.au" -User "townsville_projects@gjames.com.au" -AccessRights FullAccess -AutoMapping $true
+
+Remove-MailboxPermission -Identity "jonno_adams@gjames.com.au" -User "townsville_projects@gjames.com.au" -AccessRights FullAccess 
+
