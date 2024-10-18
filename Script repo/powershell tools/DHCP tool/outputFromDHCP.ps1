@@ -89,7 +89,7 @@ function listClients {
             $scopeIdNumber = read-host("Enter the scope id number")
             $scopeList | foreach-object {
                 if ($_.Number -Like $scopeIdNumber) {
-                    write-host("seselcted number " + $_.Number + "found")
+                    write-host("selcted number " + $_.Number + "found")
                     write-host("scope id: " + $_.scopeId)  
                     $scopeObject = New-Object PSObject
                     $scopeObject | Add-Member -MemberType NoteProperty -Name "scopeId" -Value $_.scopeId
